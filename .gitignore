@@ -2,5 +2,7 @@
 venv
 .venv/
 .chalice/deployments/*.zip
+savealife/.chalice/config.json
+.pytest_cache
 .env
 savealife/.chalice/*
