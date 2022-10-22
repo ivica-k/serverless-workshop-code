@@ -16,6 +16,7 @@ first_name = getenv("WORKSHOP_NAME", "ivica")  # replace with your own name of c
 app = Chalice(app_name=f"{first_name}-savealife")
 app.log.setLevel(logging.DEBUG)
 
+
 @app.route("/donor/signup", methods=["POST"])
 def donor_signup():
     body = app.current_request.json_body
@@ -23,3 +24,12 @@ def donor_signup():
     app.log.debug(f"Received JSON payload: {body}")
 
     return get_app_db().donor_signup(body)
+
+
+@app.route("/donation/create", methods=["POST"])
+def donation_create():
+    body = app.current_request.json_body
+
+    app.log.debug(f"Received JSON payload: {body}")
+
+    return get_app_db().donation_create(body)
