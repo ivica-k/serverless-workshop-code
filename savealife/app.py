@@ -12,7 +12,8 @@ first_name = getenv("WORKSHOP_NAME", "ivica")  # replace with your own name of c
 
 app = Chalice(app_name=f"{first_name}-savealife")
 
+@app.route("/donor/signup", methods=["POST"])
+def donor_signup():
+    body = app.current_request.json_body
 
-@app.route("/")
-def index():
-    return {"hello": "world"}
+    return body
