@@ -1,6 +1,5 @@
 import logging
 from os import getenv
-from uuid import uuid4
 
 import boto3
 
@@ -10,6 +9,10 @@ try:
     load_dotenv()
 except ImportError:
     pass
+
+from .db_donation import DonationMixin
+from .db_donor import DonorMixin
+
 
 ENV = getenv("ENV", "dev")
 first_name = getenv("WORKSHOP_NAME", "ivica")  # replace with your own name of course
@@ -31,51 +34,7 @@ def get_app_db():
     return _DB
 
 
-class SavealifeDB:
+class SavealifeDB(DonorMixin, DonationMixin):
     def __init__(self, table, logger):
         self._table = table
         self._logger = logger
-
-    def donor_signup(self, donor_dict):
-        uid = str(uuid4()).split("-")[-1]
-        try:
-            self._table.put_item(
-                Item={
-                    "first_name": donor_dict.get("first_name"),
-                    "city": donor_dict.get("city"),
-                    "type": donor_dict.get("type"),
-                    "email": donor_dict.get("email"),
-                    "PK": f"DONOR#{uid}",
-                }
-            )
-            self._logger.debug(
-                f"Inserted donor '{donor_dict.get('email')}' into DynamoDB table '{self._table}'"
-            )
-
-            return True
-
-        except Exception as exc:
-            self._logger.exception(exc)
-
-    def donation_create(self, donation_dict):
-        uid = str(uuid4()).split("-")[-1]
-        try:
-            self._table.put_item(
-                Item={
-                    "city": donation_dict.get("city"),
-                    "datetime": donation_dict.get("datetime"),
-                    "address": donation_dict.get("address"),
-                    "PK": f"DONATION#{uid}",
-                }
-            )
-            self._logger.debug(
-                f"Inserted donation '{donation_dict.get('city')}, {donation_dict.get('address')}' "
-                f"into DynamoDB table '{self._table}'"
-            )
-
-            return True
-
-        except Exception as exc:
-            self._logger.exception(exc)
-
-            return False
