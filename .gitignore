@@ -1,0 +1,6 @@
+.idea/
+venv
+.venv/
+.chalice/deployments/*.zip
+.env
+savealife/.chalice/*
