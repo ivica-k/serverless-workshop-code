@@ -1,5 +1,6 @@
 import logging
 from os import getenv
+from uuid import uuid4
 
 import boto3
 
@@ -36,6 +37,7 @@ class SavealifeDB:
         self._logger = logger
 
     def donor_signup(self, donor_dict):
+        uid = str(uuid4()).split("-")[-1]
         try:
             self._table.put_item(
                 Item={
@@ -43,6 +45,7 @@ class SavealifeDB:
                     "city": donor_dict.get("city"),
                     "type": donor_dict.get("type"),
                     "email": donor_dict.get("email"),
+                    "PK": f"DONOR#{uid}",
                 }
             )
             self._logger.debug(
@@ -55,12 +58,14 @@ class SavealifeDB:
             self._logger.exception(exc)
 
     def donation_create(self, donation_dict):
+        uid = str(uuid4()).split("-")[-1]
         try:
             self._table.put_item(
                 Item={
                     "city": donation_dict.get("city"),
                     "datetime": donation_dict.get("datetime"),
-                    "address": donation_dict.get("address")
+                    "address": donation_dict.get("address"),
+                    "PK": f"DONATION#{uid}",
                 }
             )
             self._logger.debug(
@@ -72,3 +77,5 @@ class SavealifeDB:
 
         except Exception as exc:
             self._logger.exception(exc)
+
+            return False
