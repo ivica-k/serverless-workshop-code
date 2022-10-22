@@ -28,3 +28,25 @@ def test_donor_signup():
 
         assert response.status_code == 200
         assert response.json_body.get("success")
+
+
+@mock.patch.dict(os.environ, {"TABLE_NAME": f"{first_name}-savealife-{ENV}"})
+def test_donation_create():
+    from app import app
+
+    json_payload = {
+        "city": "Haarlem",
+        "type": "A+",
+        "datetime": "2022-04-06T13:00:00",
+        "address": "2nd street",
+    }
+
+    with Client(app) as client:
+        response = client.http.post(
+            "/donation/create",
+            headers={"Content-Type": "application/json"},
+            body=json.dumps(json_payload),
+        )
+
+        assert response.status_code == 200
+        assert response.json_body.get("success")
