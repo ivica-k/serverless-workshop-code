@@ -2,6 +2,7 @@ import logging
 
 from os import getenv
 from chalice import Chalice
+from chalicelib.db import get_app_db
 
 try:
     from dotenv import load_dotenv
@@ -20,6 +21,5 @@ def donor_signup():
     body = app.current_request.json_body
 
     app.log.debug(f"Received JSON payload: {body}")
-    app.log.info("This is a INFO level message")
 
-    return body
+    return get_app_db().donor_signup(body)
