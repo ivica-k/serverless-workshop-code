@@ -60,3 +60,15 @@ def donation_create():
         body=asdict(db_response),
         status_code=200 if db_response.success else 400
     )
+
+
+@app.route("/donations", methods=["GET"])
+def donations_get():
+    db_response = get_app_db().donations_all()
+
+    app.log.debug(f"DBResponse: {db_response}")
+
+    return Response(
+        body=asdict(db_response),
+        status_code=200 if db_response.success else 400
+    )
