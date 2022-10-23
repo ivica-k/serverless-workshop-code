@@ -34,6 +34,18 @@ def donor_signup():
     )
 
 
+@app.route("/donors", methods=["GET"])
+def donors_get():
+    db_response = get_app_db().donors_all()
+
+    app.log.debug(f"DBResponse: {db_response}")
+
+    return Response(
+        body=asdict(db_response),
+        status_code=200 if db_response.success else 400
+    )
+
+
 @app.route("/donation/create", methods=["POST"])
 def donation_create():
     body = app.current_request.json_body
