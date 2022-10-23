@@ -46,6 +46,19 @@ def donors_get():
     )
 
 
+@app.route("/donor/{donor_id}", methods=["GET"])
+def donor_by_id(donor_id):
+    db_response = get_app_db().donor_by_id(donor_id)
+
+    app.log.debug(f"DBResponse: {db_response}")
+
+    return Response(
+        body=asdict(db_response),
+        status_code=200 if db_response.success else 400
+    )
+
+
+
 @app.route("/donation/create", methods=["POST"])
 def donation_create():
     body = app.current_request.json_body

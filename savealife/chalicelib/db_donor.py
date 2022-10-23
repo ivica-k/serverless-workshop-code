@@ -64,3 +64,32 @@ class DonorMixin:
 
         finally:
             return db_response
+
+    def donor_by_id(self, donor_id):
+        db_response = DBResponse(resource_id="", success=False, error_message="", return_value={})
+        try:
+            response = self._table.query(
+                KeyConditionExpression="PK = :PK",
+                ExpressionAttributeValues={
+                    ":PK": f"DONOR#{donor_id}"
+                },
+                ReturnConsumedCapacity="TOTAL",
+            )
+
+            self._logger.debug(f"Consumed {response.get('ConsumedCapacity').get('CapacityUnits')} capacity units")
+            self._logger.debug(f"Retrieved donor with id {donor_id}")
+
+            if response.get("ResponseMetadata").get('HTTPStatusCode') == 200:
+                db_response.success = True
+                db_response.return_value = response.get("Items")[0]
+
+            return db_response
+
+        except Exception as exc:
+            db_response.success = False
+            db_response.error_message = str(exc)
+
+            self._logger.exception(exc)
+
+        finally:
+            return db_response
