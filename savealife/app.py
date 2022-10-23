@@ -85,3 +85,15 @@ def donations_get():
         body=asdict(db_response),
         status_code=200 if db_response.success else 400
     )
+
+
+@app.route("/donation/{donation_id}", methods=["GET"])
+def donation_by_id(donation_id):
+    db_response = get_app_db().donation_by_id(donation_id)
+
+    app.log.debug(f"DBResponse: {db_response}")
+
+    return Response(
+        body=asdict(db_response),
+        status_code=200 if db_response.success else 400
+    )
