@@ -15,6 +15,7 @@ class DonationMixin:
                     "datetime": donation_dict.get("datetime"),
                     "address": donation_dict.get("address"),
                     "PK": f"DONATION#{uid}",
+                    "SK": f"CITY#{donation_dict.get('city')}"
                 }
             )
             self._logger.debug(

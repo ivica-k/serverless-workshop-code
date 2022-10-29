@@ -18,6 +18,7 @@ class DonorMixin:
                     "type": donor_dict.get("type"),
                     "email": donor_dict.get("email"),
                     "PK": f"DONOR#{uid}",
+                    "SK": f"CITY#{donor_dict.get('city')}"
                 }
             )
             self._logger.debug(f"Inserted donor '{donor_dict.get('email')}' into DynamoDB table '{self._table}'")
