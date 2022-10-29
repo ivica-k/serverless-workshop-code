@@ -13,6 +13,7 @@ except ImportError:
     pass
 
 first_name = getenv("WORKSHOP_NAME", "ivica")  # replace with your own name of course
+stream_arn = getenv("STREAM_ARN")
 
 app = Chalice(app_name=f"{first_name}-savealife")
 app.log.setLevel(logging.DEBUG)
@@ -97,3 +98,11 @@ def donation_by_id(donation_id):
         body=asdict(db_response),
         status_code=200 if db_response.success else 400
     )
+
+
+@app.on_dynamodb_record(stream_arn=stream_arn)
+def handle_stream(event):
+    for record in event:
+        stream_data = record.new_image
+
+        app.log.debug(stream_data)
