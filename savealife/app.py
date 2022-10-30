@@ -3,6 +3,7 @@ import logging
 from os import getenv
 from chalice import Chalice, Response
 from chalicelib.db import get_app_db
+from chalicelib.utils import chunk_list
 from dataclasses import asdict
 
 try:
@@ -107,5 +108,8 @@ def handle_stream(event):
 
         city_name = stream_data.get("city").get("S")
         db_response = get_app_db().donors_by_city(city_name)
+        all_emails = [elem.get("email") for elem in db_response.return_value]
 
-        app.log.debug(db_response)
+        batched_emails = list(chunk_list(all_emails, 50))
+
+        app.log.debug(f"Gathered '{len(all_emails)}' from donors")
