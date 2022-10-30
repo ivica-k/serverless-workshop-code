@@ -105,4 +105,7 @@ def handle_stream(event):
     for record in event:
         stream_data = record.new_image
 
-        app.log.debug(stream_data)
+        city_name = stream_data.get("city").get("S")
+        db_response = get_app_db().donors_by_city(city_name)
+
+        app.log.debug(db_response)

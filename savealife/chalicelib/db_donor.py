@@ -94,3 +94,34 @@ class DonorMixin:
 
         finally:
             return db_response
+
+    def donors_by_city(self, city):
+        db_response = DBResponse(resource_id="", success=False, error_message="", return_value={})
+        try:
+            response = self._table.query(
+                IndexName="SK-PK-index",
+                KeyConditionExpression="SK = :SK AND begins_with(PK, :PK)",
+                ExpressionAttributeValues={
+                    ":SK": f"CITY#{city}",
+                    ":PK": "DONOR#",
+                },
+                ReturnConsumedCapacity="TOTAL",
+            )
+
+            self._logger.debug(f"Consumed {response.get('ConsumedCapacity').get('CapacityUnits')} capacity units")
+            self._logger.debug(f"Retrieved all donors from city '{city}'")
+
+            if response.get("ResponseMetadata").get('HTTPStatusCode') == 200:
+                db_response.success = True
+                db_response.return_value = response.get("Items")
+
+            return db_response
+
+        except Exception as exc:
+            db_response.success = False
+            db_response.error_message = str(exc)
+
+            self._logger.exception(exc)
+
+        finally:
+            return db_response
