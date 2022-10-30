@@ -5,6 +5,7 @@ from chalice import Chalice, Response
 from chalicelib.db import get_app_db
 from chalicelib.utils import chunk_list
 from dataclasses import asdict
+import boto3
 
 try:
     from dotenv import load_dotenv
@@ -18,6 +19,8 @@ stream_arn = getenv("STREAM_ARN")
 
 app = Chalice(app_name=f"{first_name}-savealife")
 app.log.setLevel(logging.DEBUG)
+
+ses_client = boto3.client("ses")
 
 
 @app.route("/donor/signup", methods=["POST"])
@@ -58,7 +61,6 @@ def donor_by_id(donor_id):
         body=asdict(db_response),
         status_code=200 if db_response.success else 400
     )
-
 
 
 @app.route("/donation/create", methods=["POST"])
@@ -112,4 +114,24 @@ def handle_stream(event):
 
         batched_emails = list(chunk_list(all_emails, 50))
 
-        app.log.debug(f"Gathered '{len(all_emails)}' from donors")
+        app.log.debug(f"Gathered '{len(all_emails)}' donor emails")
+
+        for email_batch in batched_emails:
+            ses_client.send_email(
+                Source="TO_BE_PROVIDED",
+                Destination={
+                    "ToAddresses": email_batch
+                },
+                Message={
+                    "Subject": {
+                        "Data": f"New blood donation event in {city_name}",
+                        "Charset": "UTF-8",
+                    },
+                    "Body": {
+                        "Html": {
+                            "Data": f"<p>Dear donor,</p><p>There is a new blood donation event happening in {city_name}.</p><p>Come join us!</p>",
+                            "Charset": "UTF-8",
+                        }
+                    }
+                }
+            )
