@@ -33,3 +33,21 @@ the code examples up until chapter 2.0.
 
 Please note that some pages in the workshop do not contain code samples (such as `1.2 AWS Lambda 101`) and there will
 be no branches for that page.
+
+## Discarding changes
+
+It is possible that changing branches with `git checkout BRANCH_NAME` will fail. That happens if you changed a file 
+that contains changes in the branch you want to switch to, so `git` is unclear what to keep. To get around this you can:
+
+ - move your changes to a temporary storage (stash them) with `git stash push -m "these changes are important"`.
+This will create entry `0` in the temporary stash storage
+```bash
+$ git stash list
+stash@{0}: On master: these changes are important
+```
+if you would like to get your changes back, you may do so with `git stash pop N` where `N` is the entry number
+ - discard your changes to the file by executing `git checkout PATH_TO_CHANGED_FILE`. For example `git checkout savealife/app.py`
+ - discard all changes with `git reset`
+
+All configuration files (`*.json`) are *excluded* from `git` and discarding changes **will not** discard changes in 
+configuration files.
