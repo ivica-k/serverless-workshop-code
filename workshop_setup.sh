@@ -3,6 +3,7 @@
 PROJECT_PATH="savealife"
 
 function setup_folder_venv() {
+  echo -e "\n:: Setting up a virtual environment and installing dependencies"
   python -m pip -qq install virtualenv
   python -m virtualenv -q venv
   source venv/bin/activate
@@ -10,27 +11,9 @@ function setup_folder_venv() {
   python -m pip -qq install -r "${PROJECT_PATH}/requirements-dev.txt"
 }
 
-#function setup_requirements() {
-#  cd ${PROJECT_PATH}
-#  cat > requirements.txt <<EOF
-#boto3==1.24.75
-#botocore>=1.25.2
-#EOF
-#
-#  cat >> requirements-dev.txt <<EOF
-#-r requirements.txt
-#awscli==1.25.76
-#httpie==3.1.0
-#pytest==7.1.2
-#python-dotenv==0.20.0
-#EOF
-#
-#
-#}
-
 function setup_env_file() {
-  cd ${PROJECT_PATH}
-  cat > .env <<EOF
+  echo -e "\n:: Configuring the .env file"
+  cat > "${PROJECT_PATH}/.env" <<EOF
 WORKSHOP_NAME="${entered_name}"
 ENV=dev
 AWS_PROFILE=workshop
@@ -39,6 +22,7 @@ EOF
 }
 
 function setup_chalice_config() {
+    echo -e "\n:: Creating the Chalice config file"
     mkdir -p "${PROJECT_PATH}/.chalice"
     cat > "${PROJECT_PATH}/.chalice/config.json" <<EOF
 {
@@ -54,12 +38,15 @@ EOF
 }
 
 function setup_aws_credentials() {
-  read -sep "Enter AWS_ACCESS_KEY_ID value (will not be echoed): " entered_access_key
-  read -sep "Enter AWS_SECRET_ACCESS_KEY value (will not be echoed): " entered_secret_key
-
+  echo -e "\n:: Configuring AWS credentials"
   mkdir -p ~/.aws
-  cat >> ~/.aws/credentials <<EOF
 
+  grep -q "serverless_workshop_role" ~/.aws/credentials
+  if [[ $? != 0 ]]; then
+    read -sep "Enter AWS_ACCESS_KEY_ID value (will not be echoed): " entered_access_key
+    read -sep "Enter AWS_SECRET_ACCESS_KEY value (will not be echoed): " entered_secret_key
+
+    cat >> ~/.aws/credentials <<EOF
 [workshop_user]
 aws_access_key_id = ${entered_access_key}
 aws_secret_access_key = ${entered_secret_key}
@@ -68,23 +55,24 @@ aws_secret_access_key = ${entered_secret_key}
 role_arn = arn:aws:iam::932785857088:role/serverless_workshop_role
 source_profile = workshop_user
 EOF
+  else
+    echo -e "\n:: AWS credentials configuration already exists in '~/.aws/credentials'"
+  fi
 }
 
 read -p "What is your first name? " entered_name
 
 safe_name=$(echo $entered_name | iconv -f utf-8 -t us-ascii//TRANSLIT)
 
-setup_folder_venv
-setup_env_file
-setup_chalice_config
-setup_aws_credentials
+setup_folder_venv || true
+setup_env_file || true
+setup_chalice_config || true
+setup_aws_credentials || true
 
 export WORKSHOP_NAME=$safe_name
 export ENV=dev
 export AWS_PROFILE=workshop
 export AWS_DEFAULT_REGION=eu-central-1
-
-cd ${PROJECT_PATH}
 
 echo -e "\nEnvironment verification:"
 echo "------------------------------"
